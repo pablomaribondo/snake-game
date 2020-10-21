@@ -45,6 +45,15 @@ table {
 
 /* Custom style */
 
+@font-face {
+  font-family: "BethanieSnake";
+  src: url("./font/BethanieSnake.ttf");
+}
+
+body {
+  font-family: 'Grandstander', cursive;
+}
+
 #container {
   background-image: url('./jungle.png');
   background-position: center;
@@ -53,13 +62,66 @@ table {
   width: 100vw;
   height: 100vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+#title-container {
+  margin-bottom: 40px;
+  font-family: "BethanieSnake";
+  font-size: 90px;
+  line-height: .7em;
+  color: #1d785f;
+  text-shadow: 2px 2px 4px #888888;
+  display: flex;
+  flex-direction: column;
+}
+
+.rotate {
+  transform: rotate(-15deg);
+  -webkit-transform: rotate(-15deg);
+  -moz-transform: rotate(-15deg);
+  -ms-transform: rotate(-15deg);
+  -o-transform: rotate(-15deg);
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+}
+
+#score-container {
+  margin: 0 0 10px 10px;
+  font-size: 18px;
 }
 
 #game {
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 3px solid #1d785f;
+  border: 4px solid #1d785f;
+  border-radius: 5px;
+}
+
+#menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 500px;
+  width: 500px;
+}
+
+.button {
+  background-color: #1d785f;
+  border: none;
+  color: white;
+  width: 140px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  margin-bottom: 40px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-family: 'Grandstander', cursive;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
 }

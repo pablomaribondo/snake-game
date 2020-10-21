@@ -1,78 +1,18 @@
-// Fornece as coordenadas.
-const vertexShaderSource = `
-precision mediump int;
-precision mediump float;
+import {
+  vertexShaderSource,
+  fragmentShaderSource,
+  createShader,
+  createProgram,
+  resize,
+} from "./webgl.config.js";
 
-attribute vec4 a_position;
-attribute vec3 a_color;
-
-varying vec4 v_color;
-
-void main() {
-  gl_Position = a_position;
-  v_color = vec4(a_color, 1.0);
-}
-`;
-
-// Fornece a cor.
-const fragmentShaderSource = `
-precision mediump int;
-precision mediump float;
-
-varying vec4 v_color;
-
-void main() {
-  gl_FragColor = v_color;
-}
-`;
-
-// Função para criar o shader, fazer o upload da fonte GLSL e compilar o shader.
-const createShader = (gl, type, source) => {
-  const shader = gl.createShader(type);
-
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-
-  const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-
-  if (success) {
-    return shader;
-  }
-
-  console.log(gl.getShaderInfoLog(shader));
-  gl.deleteShader(shader);
-  return undefined;
-};
-
-// Função para linkar os shaders.
-const createProgram = (gl, vertexShader, fragmentShader) => {
-  const program = gl.createProgram();
-
-  gl.attachShader(program, vertexShader);
-  gl.attachShader(program, fragmentShader);
-  gl.linkProgram(program);
-
-  const success = gl.getProgramParameter(program, gl.LINK_STATUS);
-
-  if (success) {
-    return program;
-  }
-
-  console.log(gl.getProgramInfoLog(program));
-  gl.deleteProgram(program);
-  return undefined;
-};
-
-// Função para redimensionar o canvas
-const resize = (canvas) => {
-  const displayWidth = canvas.clientWidth;
-  const displayHeight = canvas.clientHeight;
-
-  if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
-    canvas.width = displayWidth;
-    canvas.height = displayHeight;
-  }
-};
+const canvas = document.getElementById("glcanvas"),
+  highscoreButton = document.getElementById("highscore"),
+  menu = document.getElementById("menu"),
+  playButton = document.getElementById("play"),
+  scoreContainer = document.getElementById("score-container"),
+  scoreValue = document.getElementById("score"),
+  apiUrl = "http://localhost:3000";
 
 let xVelocity = 0,
   yVelocity = 0,
@@ -85,12 +25,41 @@ let xVelocity = 0,
   trail = [],
   tail = 0,
   tick = null,
-  score = 0;
+  score = 0,
+  highscores = [];
+
+window.onload = () => {
+  fetch(`${apiUrl}/highscore`, {
+    headers: {
+      "content-type": "application/json; charset=UTF-8",
+    },
+    method: "GET",
+  })
+    .then((data) => {
+      return data.json();
+    })
+    .then((response) => {
+      const scores = [...response];
+
+      scores.sort((a, b) => {
+        if (a < b) {
+          return 1;
+        }
+        if (a > b) {
+          return -1;
+        }
+        return 0;
+      });
+
+      highscores = scores;
+    })
+    .catch((error) => console.log(error));
+};
 
 const game = (gl, colorAttributeLocation, offset) => {
   snakeXPosition += xVelocity;
   snakeYPosition += yVelocity;
-  console.log(tail);
+
   if (snakeXPosition < 0) {
     snakeXPosition = tileCount - 1;
   }
@@ -122,27 +91,16 @@ const game = (gl, colorAttributeLocation, offset) => {
 
   if (appleXPosition === snakeXPosition && appleYPosition === snakeYPosition) {
     tail++;
-    score += 100;
+    score += 10;
+
+    setScore();
+
     appleXPosition = Math.floor(Math.random() * tileCount);
     appleYPosition = Math.floor(Math.random() * tileCount);
   }
 
   drawApple(gl, colorAttributeLocation, offset);
   drawSnake(gl, colorAttributeLocation, offset);
-};
-
-const gameOver = () => {
-  clearInterval(tick);
-
-  xVelocity = 0;
-  yVelocity = 0;
-  snakeXPosition = 10;
-  snakeYPosition = 10;
-  appleXPosition = 15;
-  appleYPosition = 15;
-  trail = [];
-  tail = 0;
-  score = 0;
 };
 
 const keyPush = (event) => {
@@ -217,7 +175,6 @@ const drawApple = (gl, colorAttributeLocation, offset) => {
 
 const drawSnake = (gl, colorAttributeLocation, offset) => {
   const positions = getSnakePosition();
-  console.log(positions);
 
   gl.disableVertexAttribArray(colorAttributeLocation);
   gl.vertexAttrib4f(colorAttributeLocation, 27 / 255, 143 / 255, 79 / 255, 1);
@@ -228,9 +185,69 @@ const drawSnake = (gl, colorAttributeLocation, offset) => {
   gl.drawArrays(primitiveType, offset, count);
 };
 
-(() => {
+const setScore = () => {
+  scoreValue.innerText = score.toString().padStart(5, "0");
+};
+
+playButton.addEventListener("click", () => {
+  menu.style.display = "none";
+  canvas.style.display = "initial";
+  scoreContainer.style.visibility = "visible";
+
+  play();
+});
+
+const gameOver = () => {
+  clearInterval(tick);
+
+  menu.style.display = "flex";
+  canvas.style.display = "none";
+  scoreContainer.style.visibility = "hidden";
+
+  const lowerScore = [...highscores].pop();
+
+  if (score > lowerScore) {
+    const scores = [...highscores];
+    scores.push(score);
+
+    scores.sort((a, b) => {
+      if (a < b) {
+        return 1;
+      }
+      if (a > b) {
+        return -1;
+      }
+      return 0;
+    });
+
+    scores.pop();
+
+    highscores = scores;
+
+    fetch(`${apiUrl}/highscore`, {
+      headers: {
+        "content-type": "application/json; charset=UTF-8",
+      },
+      body: { highscores },
+      method: "POST",
+    }).catch((error) => console.log(error));
+  }
+
+  xVelocity = 0;
+  yVelocity = 0;
+  snakeXPosition = 10;
+  snakeYPosition = 10;
+  appleXPosition = 15;
+  appleYPosition = 15;
+  trail = [];
+  tail = 0;
+  score = 0;
+
+  setScore();
+};
+
+const play = () => {
   // Aplica o context WebGL.
-  const canvas = document.getElementById("glcanvas");
   const gl = canvas.getContext("webgl2");
 
   if (!gl) {
@@ -262,11 +279,6 @@ const drawSnake = (gl, colorAttributeLocation, offset) => {
   // Vincula o buffer de posição.
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-
-  // Cria uma coleção do estado do atributo denominada Vertex Array Object.
-  // const vao = gl.createVertexArray();
-
-  // gl.bindVertexArray(vao);
 
   // Ativa o atributo. Se não for ativado, então, o atributo terá um valor constante.
   gl.enableVertexAttribArray(positionAttributeLocation);
@@ -304,8 +316,6 @@ const drawSnake = (gl, colorAttributeLocation, offset) => {
 
   gl.useProgram(program);
 
-  // gl.bindVertexArray(vao);
-
   document.addEventListener("keydown", keyPush);
   tick = setInterval(() => {
     // Limpa o canvas
@@ -313,5 +323,5 @@ const drawSnake = (gl, colorAttributeLocation, offset) => {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     game(gl, colorAttributeLocation, offset);
-  }, 1000 / 1);
-})();
+  }, 1000 / 10);
+};

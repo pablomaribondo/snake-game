@@ -13,3 +13,8 @@ Projeto desenvolvido para a disiciplina de Computação Gráfica(INF1701) da Uni
 - _OPCIONAL​_: Salvar e carregar de arquivo os melhores scores do jogo
 
 **Desenvolvido com:** WebGL 2.0
+
+**Fonte:**
+
+- _Nome_: Bethanie Snake.ttf
+- _Autor_: Gregory Medina, dcodesign 2019

@@ -3,13 +3,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Snake Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Grandstander&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <script defer src="script.js"></script>
+  <script defer type="module" src="script.js"></script>
 </head>
 <body>
 <div id="container">
-  <div id="game">
-    <canvas id="glcanvas" width="500" height="500"></canvas>
+  <div id="title-container">
+    <span class="rotate">Snake</span>
+    <span class="rotate" style="margin-left: 70px;">Game</span>
+  </div>
+  <div id="game-container">
+    <div id="score-container" style="visibility: hidden;">Score: <span id="score">00000</span></div>
+    <div id="game">
+      <canvas id="glcanvas" width="500" height="500" style="display: none;"></canvas>
+      <div id="menu">
+        <button id="play" class="button">Play</button>
+        <button id="highscore" class="button">High Score</button>
+      </div>
+    </div>
   </div>
 </div>
 </body>
