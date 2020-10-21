@@ -8,6 +8,9 @@ import {
 
 const canvas = document.getElementById("glcanvas"),
   highscoreButton = document.getElementById("highscore"),
+  highscoreContainer = document.getElementById("highscore-container"),
+  highscoreList = document.getElementById("highscore-list"),
+  backButton = document.getElementById("back"),
   menu = document.getElementById("menu"),
   playButton = document.getElementById("play"),
   scoreContainer = document.getElementById("score-container"),
@@ -195,6 +198,21 @@ playButton.addEventListener("click", () => {
   scoreContainer.style.visibility = "visible";
 
   play();
+});
+
+highscoreButton.addEventListener("click", () => {
+  menu.style.display = "none";
+  highscoreContainer.style.display = "flex";
+
+  highscoreList.innerHTML = "";
+  highscores.forEach((element, index) => {
+    highscoreList.innerHTML += `<ul class="list">${index + 1}: ${element}</ul>`;
+  });
+});
+
+backButton.addEventListener("click", () => {
+  menu.style.display = "flex";
+  highscoreContainer.style.display = "none";
 });
 
 const gameOver = () => {
