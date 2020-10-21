@@ -246,7 +246,7 @@ const gameOver = () => {
       headers: {
         "content-type": "application/json; charset=UTF-8",
       },
-      body: { highscores },
+      body: JSON.stringify({ highscores }),
       method: "POST",
     }).catch((error) => console.log(error));
   }
