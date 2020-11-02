@@ -18,3 +18,7 @@ Projeto desenvolvido para a disiciplina de Computação Gráfica(INF1701) da Uni
 
 - _Nome_: Bethanie Snake.ttf
 - _Autor_: Gregory Medina, dcodesign 2019
+
+**Screenshots:**
+![alt text](.github/screenshot1.png)
+![alt text](.github/screenshot2.png)
